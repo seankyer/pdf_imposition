@@ -8,7 +8,6 @@ from PyPDF2 import PdfFileWriter
 from PyPDF2 import pdf
 
 import math
-import time
 
 # Page size catalogue
 page_size_dict = {
@@ -22,7 +21,7 @@ def inch_to_pt(inches):
     return inches * 72
 
 
-def n_up(fp, n_across, n_down, x_gut, y_gut, page_size, is_one_page):
+def n_up_fun(fp, n_across, n_down, x_gut, y_gut, page_size, is_one_page):
     reader = PdfFileReader(open(fp, 'rb'))  # Open target file
     print("Page count for fp: " + str(reader.getNumPages()))
     x_gutter = inch_to_pt(x_gut)
@@ -42,11 +41,9 @@ def n_up(fp, n_across, n_down, x_gut, y_gut, page_size, is_one_page):
 
     # Sanity checks
     if ((page0_w * n_across) + ((n_across - 1) * x_gutter)) > new_page_w:
-        print("n_across too large for desired canvas")
-        return -1
+        return "n_across too large for desired canvas"
     if ((page0_h * n_down) + ((n_down - 1) * y_gutter)) > new_page_h:
-        print("n_down too large for desired canvas")
-        return -1
+        return "n_down too large for desired canvas"
 
     new_pdf_page_count = math.ceil(reader.getNumPages() / (n_across * n_down))
 
@@ -56,7 +53,7 @@ def n_up(fp, n_across, n_down, x_gut, y_gut, page_size, is_one_page):
         new_pdf_pages.append(new_pdf_page)
 
     column_count = 1  # Row counter
-    page_count = 0    # page count
+    page_count = 0  # page count
 
     # Arithmetic to center elements on the x axis
     x_pos_start = (new_page_w - ((n_across * page0_w) + ((n_across - 1) * x_gutter))) / 2
@@ -65,19 +62,19 @@ def n_up(fp, n_across, n_down, x_gut, y_gut, page_size, is_one_page):
     for n in range(0, reader.getNumPages()):
         next_page = reader.getPage(n)
         new_pdf_pages[page_count].mergeScaledTranslatedPage(next_page,
-                                                       1,
+                                                            1,
 
-                                                       x_pos_start +
-                                                       ((n % n_across) * page0_w) +
-                                                       ((n % n_across) * x_gutter),
+                                                            x_pos_start +
+                                                            ((n % n_across) * page0_w) +
+                                                            ((n % n_across) * x_gutter),
 
-                                                       new_page_h -
-                                                       y_pos_start -
-                                                       (column_count * page0_h) -
-                                                       (y_gutter * (column_count - 1)),
+                                                            new_page_h -
+                                                            y_pos_start -
+                                                            (column_count * page0_h) -
+                                                            (y_gutter * (column_count - 1)),
 
-                                                       is_one_page
-                                                       )
+                                                            is_one_page
+                                                            )
 
         if n % n_across == n_across - 1:
             column_count += 1
@@ -92,13 +89,13 @@ def n_up(fp, n_across, n_down, x_gut, y_gut, page_size, is_one_page):
     for page in new_pdf_pages:
         writer.addPage(page)
 
-    with open("output.pdf", 'wb') as f:
+    with open("/Users/prepress-2/Desktop/output.pdf", 'wb') as f:
         writer.write(f)
 
     print("output.pdf exported")
-    return 0
+    return "success"
 
 
 if __name__ == "__main__":
     path = "example.pdf"
-    n_up(path, 2, 3, 0, 0, "letter", False)
+    n_up_fun(path, 2, 4, 1, 1, "letter", False)
