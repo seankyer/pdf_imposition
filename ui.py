@@ -211,7 +211,7 @@ def n_up_fun(fp, n_across, n_down, x_gut, y_gut, page_size, is_one_page):
 
         if (n + 1) % (n_across * n_down) == 0:
             page_count += 1
-            column_count = 0
+            column_count = 1
 
     # Combine all pages and write file
     writer = PdfFileWriter()
